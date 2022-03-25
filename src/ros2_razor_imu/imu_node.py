@@ -83,7 +83,7 @@ class RazorImuDriver(Node):
             mag_msg.header.frame_id = self.get_parameter_or('frame_header', 'base_imu_link').value
             # should a separate diagnostic for the Magnetometer be done?
 
-        port = self.declare_parameter('port', '/dev/tty.usbmodem146401').value
+        port = self.declare_parameter('port', '/dev/imu').value
 
         # read calibration parameters
         self.calib_dict = {}
@@ -164,8 +164,7 @@ class RazorImuDriver(Node):
         while rclpy.ok():
             line = ser.readline().decode("utf-8")
             if not line.startswith(line_start):
-                self.get_logger().error(1,
-                                        "Did not find correct line start in the received IMU message")
+                self.get_logger().error("Did not find correct line start in the received IMU message")
                 continue
             line = line.replace(line_start, "")  # Delete "#YPRAG=" or "#YPRAGM="
             words = line.split(",")  # Fields split

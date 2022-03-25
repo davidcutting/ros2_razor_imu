@@ -1,56 +1,49 @@
-# Copyright (c) 2019, Andreas Klintberg
+# MIT License
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+# Copyright (c) 2022 David Cutting
 #
-#     http://www.apache.org/licenses/LICENSE-2.0
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
 #
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 import os
 import sys
 
 from ament_index_python.packages import get_package_share_directory
-from launch import LaunchDescription, LaunchIntrospector, LaunchService
-from launch_ros import actions, get_default_launch_description
+
+from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument
+from launch.substitutions import LaunchConfiguration
+
+from launch_ros.actions import Node
 
 
 def generate_launch_description():
-    """
-    Launch file for publishing Razor IMU data
-    """
-    config_path = os.path.join(get_package_share_directory("razor_imu_9dof"), "config",
-                               "razor.yaml")
 
-    imu_node = actions.Node(
-        package='razor_imu_9dof', node_executable='imu_node', output='screen',
+    config_path = os.path.join(get_package_share_directory("ros2_razor_imu"), "config", "razor.yaml")
+
+    razor_imu = Node(
+        package='ros2_razor_imu',
+        executable='imu_node',
+        name='ros2_razor_imu',
+        output='screen',
         parameters=[config_path])
 
-    return LaunchDescription([imu_node])
-
-
-def main(args=None):
-    ld = generate_launch_description()
-
-    print('Starting introspection of launch description...')
-    print('')
-
-    print(LaunchIntrospector().format_launch_description(ld))
-
-    print('')
-    print('Starting launch of launch description...')
-    print('')
-
-    ls = LaunchService()
-    ls.include_launch_description(get_default_launch_description())
-    ls.include_launch_description(ld)
-    return ls.run()
-
-
-if __name__ == '__main__':
-    main(sys.argv)
+    return LaunchDescription([
+        # Nodes
+        razor_imu,
+    ])
